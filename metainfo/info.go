@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/anacrolix/missinggo/slices"
+	"github.com/anacrolix/torrent/bencode"
 )
 
 // The info dictionary.
@@ -22,6 +23,17 @@ type Info struct {
 	// TODO: Document this field.
 	Source string     `bencode:"source,omitempty"`
 	Files  []FileInfo `bencode:"files,omitempty"`
+}
+
+type fakeInfo Info
+
+func (info *Info) UnmarshalBencode(data []byte) error {
+	m := make(map[string]interface{})
+	if err := bencode.Unmarshal(data, &m); err != nil {
+		return err
+	}
+	applyUTF8Field((*fakeInfo)(info), m)
+	return nil
 }
 
 // This is a helper that sets Files and Pieces from a root path and its

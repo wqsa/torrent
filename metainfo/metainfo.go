@@ -20,6 +20,17 @@ type MetaInfo struct {
 	UrlList      UrlList       `bencode:"url-list,omitempty"`
 }
 
+type fakeMetaInfo MetaInfo
+
+func (mi *MetaInfo) UnmarshalBencode(data []byte) error {
+	m := make(map[string]interface{})
+	if err := bencode.Unmarshal(data, &m); err != nil {
+		return err
+	}
+	applyUTF8Field((*fakeMetaInfo)(mi), m)
+	return nil
+}
+
 // Load a MetaInfo from an io.Reader. Returns a non-nil error in case of
 // failure.
 func Load(r io.Reader) (*MetaInfo, error) {
